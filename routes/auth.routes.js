@@ -5,45 +5,71 @@ const jwt = require('jsonwebtoken');
 const config = require('config');
 const { check, validationResult } = require('express-validator');
 const router = Router();
+const axios = require('axios');
+// const fetch = require('node-fetch');
 
 // /api/auth/reqister
 router.post(
   '/register',
   [
-    check('email', 'Некоректный email').isEmail(),
-    check('password', 'Минимальная длина пароль 6 символов').isLength({
-      min: 6,
-    }),
+    // check('email', 'Некоректный email').isEmail(),
+    // check('password', 'Минимальная длина пароль 6 символов').isLength({
+    //   min: 6,
+    // }),
   ],
   async (req, res) => {
     try {
-      // console.log('Body:', req.body)
+      // const errors = validationResult(req);
 
-      const errors = validationResult(req);
+      const { email } = req.body;
 
-      if (!errors.isEmpty()) {
-        return res.status(400).json({
-          errors: errors.array(),
-          message: 'Некоректные данные при регистрации',
-        });
-      }
+      const response = await axios.get(email, {
+        headers: {
+          Referer: email,
+          'X-Requested-With': 'XMLHttpRequest',
+          'User-Agent': 'Axios- console app',
+          // 'User-Agent': 'axios/0.26.1',
+          // 'Content-Type': 'text/html',
+          // Accept:
+          //   'text/html,application/xhtml+xml,application/xml;image/avif,image/webp,image/apng,*/*;application/signed-exchange;v=b3;',
+        },
+      });
 
-      const { email, password } = req.body;
+      // const html = fetch(email);
+      // const html = await fetch('https://vibe.naver.com/chart/total');
 
-      const candidate = await User.findOne({ email });
+      // const test = html.text();
 
-      if (candidate) {
-        return res
-          .status(400)
-          .json({ message: 'Такой пользователь уже существует' });
-      }
+      // console.log('body', email);
+      // console.log(response);
+      // if (!errors.isEmpty()) {
+      //   return res.status(400).json({
+      //     errors: errors.array(),
+      //     message: 'Некоректные данные при регистрации',
+      //   });
+      // }
 
-      const hashedPassword = await bcrypt.hash(password, 12);
-      const user = new User({ email, password: hashedPassword });
+      // const { email, password } = req.body;
 
-      await user.save();
+      // const candidate = await User.findOne({ email });
 
-      res.status(201).json({ message: 'Пользователь создан' });
+      // if (candidate) {
+      //   return res
+      //     .status(400)
+      //     .json({ message: 'Такой пользователь уже существует' });
+      // }
+
+      // const hashedPassword = await bcrypt.hash(password, 12);
+      // const user = new User({ email, password: hashedPassword });
+
+      // await user.save();
+
+      // res.status(201).json({ message: 'Пользователь создан' });
+      res.status(200).json({
+        message: response.status,
+        body: response.data,
+        // bodyTest: test,
+      });
     } catch (e) {
       res
         .status(500)
@@ -60,6 +86,8 @@ router.post(
     check('password', 'Введите пароль').exists(),
   ],
   async (req, res) => {
+    console.log('Body:', req.body);
+
     try {
       const errors = validationResult(req);
 
